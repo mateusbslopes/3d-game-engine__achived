@@ -7,6 +7,7 @@
 #include <cstdlib>
 
 #include <vector>
+#include <cstring>
 
 class HelloTriangleApplication {
 public:
@@ -23,6 +24,16 @@ private:
     GLFWwindow* window;
     VkInstance instance;
     
+    const std::vector<const char*> validationLayers = {
+        "VK_LAYER_KHRONOS_validation"
+    };
+
+    #ifdef NDEBUG
+        const bool enableValidationLayers = false;
+    #else
+        const bool enableValidationLayers = true;
+    #endif
+    
     void initWindow() {
         glfwInit();
         
@@ -34,7 +45,7 @@ private:
         window = glfwCreateWindow(WIDTH, HEIGHT, "3d engine", nullptr, nullptr);
     }
     
-    void printAvailableExtensions(){
+    void printAvailableExtensions() {
         uint32_t extensionCount = 0;
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
         
@@ -47,7 +58,36 @@ private:
         }
     }
     
+    bool checkValidationLayerSupport() {
+        uint32_t layerCount;
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+        
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+        
+        for(const char* layerName : validationLayers) {
+            bool layerFound = false;
+            
+            for(const auto& layerProperties : availableLayers) {
+                if(strcmp(layerName, layerProperties.layerName) == 0) {
+                    layerFound = true;
+                    break;
+                }
+            }
+            
+            if(!layerFound) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
     void createInstance(){
+        if(enableValidationLayers && !checkValidationLayerSupport()) {
+            throw std::runtime_error("Validation layers requested but not available.");
+        }
+        
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         appInfo.pApplicationName = "3d Engine";
@@ -67,7 +107,12 @@ private:
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
         createInfo.enabledExtensionCount = glfwExtensionCount;
         createInfo.ppEnabledExtensionNames = glfwExtensions;
-        createInfo.enabledLayerCount = 0;
+        
+        if(enableValidationLayers) {
+            createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        } else {
+            createInfo.enabledLayerCount = 0;
+        }
         
         // start Apple compatibility
         std::vector<const char*> requiredExtensions;
@@ -86,7 +131,10 @@ private:
         
         printAvailableExtensions();
         
-        if(vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS){
+        VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
+        
+        std::cout << "vkResult: " << result << std::endl;
+        if(result != VK_SUCCESS){
             throw std::runtime_error("Failed to create instance!");
         }
     }

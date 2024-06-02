@@ -95,9 +95,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 27FAB16E2C0C99140049EF08 /* Build configuration list for PBXNativeTarget "3d-game-engine" */;
 			buildPhases = (
-				27FAB1632C0C99140049EF08 /* Sources */,
 				27FAB1642C0C99140049EF08 /* Frameworks */,
 				27FAB1652C0C99140049EF08 /* CopyFiles */,
+				27FAB1632C0C99140049EF08 /* Sources */,
 			);
 			buildRules = (
 			);
