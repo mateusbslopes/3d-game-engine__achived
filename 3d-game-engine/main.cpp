@@ -34,6 +34,19 @@ private:
         window = glfwCreateWindow(WIDTH, HEIGHT, "3d engine", nullptr, nullptr);
     }
     
+    void printAvailableExtensions(){
+        uint32_t extensionCount = 0;
+        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+        
+        std::vector<VkExtensionProperties> extensions(extensionCount);
+        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
+        
+        std::cout << "Available extensions:\n";
+        for(const auto& extension : extensions){
+            std::cout << '\t' << extension.extensionName << '\n';
+        }
+    }
+    
     void createInstance(){
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -71,6 +84,7 @@ private:
         createInfo.ppEnabledExtensionNames = requiredExtensions.data();
         // end Apple compatibility
         
+        printAvailableExtensions();
         
         if(vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS){
             throw std::runtime_error("Failed to create instance!");
@@ -88,6 +102,7 @@ private:
     }
 
     void cleanup() {
+        vkDestroyInstance(instance, nullptr);
         glfwDestroyWindow(window);
         glfwTerminate();
     }
