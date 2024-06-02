@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:">
+      location = "self:/Users/mateus/workfolder/games/3d-gameengine/3d-game-engine.xcodeproj">
    </FileRef>
 </Workspace>
